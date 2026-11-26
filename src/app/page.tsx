@@ -5,7 +5,7 @@ import { loadStore } from "@/lib/store";
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const radar = buildRadar(await loadStore());
+  const radar = buildRadar(await loadStore({ forCrawl: false }));
 
   // Ship only what the UI renders — descriptions are trimmed to a preview.
   const data: ClientRadar = {

@@ -1,5 +1,6 @@
--- AgentCheck schema. Mirrors src/lib/types.ts; the crawler currently writes to data/store.json
--- and will switch to these tables once a Supabase project is connected.
+-- AgentCheck schema. Mirrors src/lib/types.ts.
+-- Run once in Supabase → SQL Editor (or `supabase db push`). The crawler writes with the secret key;
+-- everything a visitor can see is exposed read-only through RLS policies.
 
 create extension if not exists vector;
 
@@ -126,6 +127,12 @@ alter table applications enable row level security;
 
 create policy "own profile" on profiles for all using (auth.uid() = id) with check (auth.uid() = id);
 create policy "own applications" on applications for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
+
+-- Crawler-internal tables: no policies = only the secret key (which bypasses RLS) can touch them.
+alter table title_history enable row level security;
+alter table job_sightings enable row level security;
+alter table crawl_runs enable row level security;
+create policy "public read" on crawl_runs for select using (true);
 
 -- Public, read-only job data.
 alter table jobs enable row level security;

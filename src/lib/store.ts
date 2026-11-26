@@ -1,12 +1,15 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
+import { loadFromSupabase, saveToSupabase, supabaseConfig } from "./supabase-store";
 import { companyKey, normalizeTitle } from "./text";
 import type { Company, CrawlRun, FundingEvent, Job, RawJob, StoreData } from "./types";
 
 /**
- * Local JSON store. It is the source of truth until Supabase is connected
- * (schema in supabase/migrations). Keeps crawl history so we can tell how long
- * a job has really been open and whether it keeps getting reposted.
+ * Store backends:
+ *  - Supabase when SUPABASE_URL + SUPABASE_SECRET_KEY are set (production, schema in supabase/migrations)
+ *  - otherwise a local JSON file (zero-setup development)
+ * Either way it keeps crawl history so we can tell how long a job has really been
+ * open and whether it keeps getting reposted.
  */
 export const STORE_PATH = path.join(process.cwd(), "data", "store.json");
 
@@ -14,7 +17,23 @@ export function emptyStore(): StoreData {
   return { version: 1, jobs: {}, titleHistory: {}, companies: {}, funding: {}, runs: [] };
 }
 
-export async function loadStore(file = STORE_PATH): Promise<StoreData> {
+export function storeBackend(): "supabase" | "local" {
+  return supabaseConfig() ? "supabase" : "local";
+}
+
+/** Loads the store. `forCrawl: false` skips history only the crawler needs (faster page loads). */
+export async function loadStore(opts: { forCrawl?: boolean } = {}): Promise<StoreData> {
+  const cfg = supabaseConfig();
+  return cfg ? loadFromSupabase(cfg, opts.forCrawl ?? true) : loadLocalStore();
+}
+
+/** @param loadedJobIds job ids present when the store was loaded (so pruned jobs get deleted). */
+export async function saveStore(data: StoreData, loadedJobIds: Set<string>): Promise<void> {
+  const cfg = supabaseConfig();
+  return cfg ? saveToSupabase(cfg, data, loadedJobIds) : saveLocalStore(data);
+}
+
+export async function loadLocalStore(file = STORE_PATH): Promise<StoreData> {
   try {
     return JSON.parse(await fs.readFile(file, "utf8")) as StoreData;
   } catch (e) {
@@ -23,7 +42,7 @@ export async function loadStore(file = STORE_PATH): Promise<StoreData> {
   }
 }
 
-export async function saveStore(data: StoreData, file = STORE_PATH): Promise<void> {
+export async function saveLocalStore(data: StoreData, file = STORE_PATH): Promise<void> {
   await fs.mkdir(path.dirname(file), { recursive: true });
   const tmp = `${file}.tmp`;
   await fs.writeFile(tmp, JSON.stringify(data));
