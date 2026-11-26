@@ -1,0 +1,17 @@
+{
+  "$comment": "Startup job boards to crawl. Add a company by its board slug: jobs.ashbyhq.com/<slug>, boards.greenhouse.io/<slug>, jobs.lever.co/<slug>.",
+  "boards": [
+    { "ats": "ashby", "slug": "sarvam", "company": "Sarvam AI" },
+    { "ats": "ashby", "slug": "atlan", "company": "Atlan" },
+    { "ats": "ashby", "slug": "composio", "company": "Composio" },
+    { "ats": "ashby", "slug": "bolna", "company": "Bolna" },
+    { "ats": "greenhouse", "slug": "razorpaysoftwareprivatelimited", "company": "Razorpay" },
+    { "ats": "greenhouse", "slug": "groww", "company": "Groww" },
+    { "ats": "greenhouse", "slug": "druva", "company": "Druva" },
+    { "ats": "lever", "slug": "cred", "company": "CRED" },
+    { "ats": "lever", "slug": "zeta", "company": "Zeta" },
+    { "ats": "lever", "slug": "paytm", "company": "Paytm" },
+    { "ats": "lever", "slug": "fampay", "company": "FamPay" },
+    { "ats": "lever", "slug": "pocketfm", "company": "Pocket FM" }
+  ]
+}
