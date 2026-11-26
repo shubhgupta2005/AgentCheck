@@ -24,5 +24,6 @@ jobs:
       - name: Crawl sources into Supabase
         run: npm run crawl
         env:
+          REQUIRE_SUPABASE: "1"
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
