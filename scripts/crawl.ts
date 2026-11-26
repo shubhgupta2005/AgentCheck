@@ -23,6 +23,12 @@ import type { RawJob, SourceId } from "../src/lib/types";
 
 async function main() {
   console.log(`Store: ${storeBackend()}`);
+  if (process.env.REQUIRE_SUPABASE && storeBackend() !== "supabase") {
+    throw new Error(
+      "REQUIRE_SUPABASE is set but SUPABASE_URL / SUPABASE_SECRET_KEY are missing. " +
+        "Add both as repository secrets: Settings → Secrets and variables → Actions → Repository secrets.",
+    );
+  }
   const store = await loadStore();
   const loadedJobIds = new Set(Object.keys(store.jobs));
   const now = new Date();
